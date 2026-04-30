@@ -11,7 +11,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 	#endif
               .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-      ) {
+              ),
+      apvts(*this, nullptr, "PARAMETERS", createParameterLayout()) {
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {}
@@ -75,6 +76,7 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate,
 	// Use this method as the place to do any pre-playback
 	// initialisation that you need..
 	juce::ignoreUnused(sampleRate, samplesPerBlock);
+	currentSampleRate = sampleRate;
 }
 
 void AudioPluginAudioProcessor::releaseResources() {
