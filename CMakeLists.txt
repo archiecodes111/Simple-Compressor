@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.23.1)
 project(SimpleGainPlugin VERSION 0.0.1)
 
 # General setup
-set(PROJECT_NAME "SimpleGainPlugin")
+set(PROJECT_NAME "Simple-Compressor-Plugin")
 set(CURRENT_VERSION "0.0.1")
-set(PRODUCT_NAME "SimpleGainPlugin")
+set(PRODUCT_NAME "Simple-Compressor-Plugin")
 set(COMPANY_NAME "Archie DSP")
-set(BUNDLE_ID "com.archiedsp.SimpleGainPlugin")
+set(BUNDLE_ID "com.archiedsp.Simple-Compressor-Plugin")
 set(FORMATS Standalone VST3)
 
 # JUCE
