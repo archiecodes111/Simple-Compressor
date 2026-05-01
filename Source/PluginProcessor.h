@@ -43,12 +43,12 @@ class AudioPluginAudioProcessor final : public juce::AudioProcessor {
 
 	// Parameter layout
 	juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+	juce::AudioProcessorValueTreeState apvts;
 
   private:
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessor)
 
-	juce::AudioProcessorValueTreeState apvts;
 	float envelopeValue = 0.0f;
 	double currentSampleRate = 0.0;
 };
