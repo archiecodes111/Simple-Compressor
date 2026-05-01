@@ -17,6 +17,33 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {}
 
+juce::AudioProcessorValueTreeState::ParameterLayout
+AudioPluginAudioProcessor::createParameterLayout() {
+	std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+
+	params.push_back(std::make_unique<juce::AudioParameterFloat>(
+	    "threshold", "Threshold",
+	    juce::NormalisableRange<float>(-60.0f, 0.0f, 0.1f), -24.0f));
+
+	params.push_back(std::make_unique<juce::AudioParameterFloat>(
+	    "ratio", "Ratio", juce::NormalisableRange<float>(1.0f, 20.0f, 0.1f),
+	    4.0f));
+
+	params.push_back(std::make_unique<juce::AudioParameterFloat>(
+	    "attack", "Attack", juce::NormalisableRange<float>(1.0f, 200.0f, 0.1f),
+	    20.0f));
+
+	params.push_back(std::make_unique<juce::AudioParameterFloat>(
+	    "release", "Release",
+	    juce::NormalisableRange<float>(10.0f, 500.0f, 0.1f), 100.0f));
+
+	params.push_back(std::make_unique<juce::AudioParameterFloat>(
+	    "makeup", "Makeup", juce::NormalisableRange<float>(0.0f, 24.0f, 0.1f),
+	    0.0f));
+
+	return {params.begin(), params.end()};
+}
+
 //==============================================================================
 const juce::String AudioPluginAudioProcessor::getName() const {
 	return JucePlugin_Name;
@@ -113,6 +140,15 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 	juce::ignoreUnused(midiMessages);
 
 	juce::ScopedNoDenormals noDenormals;
+
+	auto threshold = apvts.getRawParameterValue("threshold")->load();
+	auto ratio = apvts.getRawParameterValue("ratio")->load();
+	auto attack = apvts.getRawParameterValue("attack")->load();
+	auto release = apvts.getRawParameterValue("release")->load();
+	auto makeup = apvts.getRawParameterValue("makeup")->load();
+	float attackCoeff = std::exp(-1.0f / (attack * currentSampleRate * 0.001f));
+	float releaseCoeff = std::exp(-1.0f / (release * currentSampleRate * 0.001f));
+
 	auto totalNumInputChannels = getTotalNumInputChannels();
 	auto totalNumOutputChannels = getTotalNumOutputChannels();
 
@@ -135,7 +171,22 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 		auto *channelData = buffer.getWritePointer(channel);
 		juce::ignoreUnused(channelData);
 		for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
-			channelData[sample] = 0.5f * channelData[sample];
+			float input = channelData[sample];
+			float inputLevel = std::abs(input);
+			if (inputLevel > envelopeValue)
+				envelopeValue = attackCoeff * envelopeValue + (1.0f - attackCoeff) * inputLevel;
+			else
+				envelopeValue = releaseCoeff * envelopeValue + (1.0f - releaseCoeff) * inputLevel;
+			float envelopeDb = juce::Decibels::gainToDecibels(envelopeValue);
+			float gainReductionDb = 0.0f;
+			if (envelopeDb > threshold) {
+				float overThreshold = envelopeDb - threshold;
+				gainReductionDb = overThreshold - (overThreshold / ratio);
+			}
+			float gain = juce::Decibels::decibelsToGain(-gainReductionDb);
+			float makeupGain = juce::Decibels::decibelsToGain(makeup);
+
+			channelData[sample] = input * gain * makeupGain;
 		}
 	}
 }

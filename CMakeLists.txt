@@ -8,7 +8,7 @@ set(CURRENT_VERSION "0.0.1")
 set(PRODUCT_NAME "Simple-Compressor-Plugin")
 set(COMPANY_NAME "Archie DSP")
 set(BUNDLE_ID "com.archiedsp.Simple-Compressor-Plugin")
-set(FORMATS Standalone VST3)
+set(FORMATS VST3 Standalone)
 
 # JUCE
 add_subdirectory(modules/JUCE)
