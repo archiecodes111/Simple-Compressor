@@ -28,6 +28,12 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
 	releaseSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
 	makeupSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
 
+	thresholdSlider.setDoubleClickReturnValue(true, -24.0);
+	ratioSlider.setDoubleClickReturnValue(true, 4.0);
+	attackSlider.setDoubleClickReturnValue(true, 20.0);
+	releaseSlider.setDoubleClickReturnValue(true, 100.0);
+	makeupSlider.setDoubleClickReturnValue(true, 0.0);
+
 	thresholdAttachment = std::make_unique<SliderAttachment>(
 	    processorRef.apvts, "threshold", thresholdSlider);
 

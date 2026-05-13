@@ -141,11 +141,14 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 
 	juce::ScopedNoDenormals noDenormals;
 
+	// Get parameter values
 	auto threshold = apvts.getRawParameterValue("threshold")->load();
 	auto ratio = apvts.getRawParameterValue("ratio")->load();
 	auto attack = apvts.getRawParameterValue("attack")->load();
 	auto release = apvts.getRawParameterValue("release")->load();
 	auto makeup = apvts.getRawParameterValue("makeup")->load();
+
+	// Attack and release coefficients for the envelope follower
 	float attackCoeff = std::exp(-1.0f / (attack * currentSampleRate * 0.001f));
 	float releaseCoeff = std::exp(-1.0f / (release * currentSampleRate * 0.001f));
 
